@@ -2,7 +2,7 @@
 
 ## Author
 Ernest Gyimah Adu - Cybersecurity Graduate Student  
-Security+ | AWS Solutions Architect | Azure Administrator | ISC2 Certified in Cybersecurity (CC)  
+Security+ | AWS Cloud Practictioner | Azure Administrator | ISC2 Certified in Cybersecurity (CC)  
 6+ Years IT Support / System Administration Experience  
 
 ---
