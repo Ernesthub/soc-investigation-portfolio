@@ -131,7 +131,7 @@ No real-world systems or unauthorized environments were accessed.
 
 ## Contact
 
-LinkedIn: linkedin.com/in/ernest-adu-gyimah-124908127
+LinkedIn: www.linkedin.com/in/ernest-adu-gyimah-124908127
 
 Email: ernestadugyimah@gmail.com
 
