@@ -1,132 +1,143 @@
-**Alert Summary**
-During routine monitoring of endpoint telemetry in the Splunk SIEM platform, a PowerShell execution event was detected on the Windows 10 host. The event originated from the Sysmon operational log and included command-line arguments suggesting potentially suspicious activity. Specifically, PowerShell was executed using command-line flags commonly associated with attacker techniques.
+**Overview**
 
-The activity was investigated to determine whether it represented normal administrative behavior or potential malicious execution.
+This investigation analyzes suspicious PowerShell activity detected through Sysmon logs and monitored using Splunk Enterprise SIEM. The goal of the investigation was to identify potentially malicious command execution and analyze process behavior on the monitored Windows endpoint.
 
-Environment Component	Description
-- SIEM	Splunk Enterprise
-- Endpoint Monitoring	Sysmon
-- Log Source	Microsoft-Windows-Sysmon/Operational
-- Host	Windows-10
-- Forwarder	Splunk Universal Forwarder
-- Detection Type	Process Creation Monitoring
-- Detection Method
+PowerShell is frequently used by attackers because it allows command execution, scripting, and system interaction while often blending in with legitimate administrative activity. Monitoring PowerShell activity is therefore an important detection capability in Security Operations Centers (SOC).
 
-The following Splunk query was used to detect PowerShell executions:
+**Lab Environment**
 
-index=* source="WinEventLog:Microsoft-Windows-Sysmon/Operational" EventCode=1
-Image="*powershell.exe"
-| table _time host User ParentImage CommandLine
-| sort -_time
+    **Component	              Description**
+    SIEM Platform	            Splunk Enterprise
+    Endpoint Monitoring	      Sysmon
+    Endpoint System	          Windows 10
+    Log Forwarding	          Splunk Universal Forwarder
+    Virtualization	          VMware Workstation
+    Log Source	              Microsoft-Windows-Sysmon/Operational
 
-This query filters Sysmon Event ID 1 (Process Creation) events and isolates PowerShell executions.
+**Detection Strategy**
 
-Evidence Collected
-Normal Process Creation Activity
+Sysmon Event ID 1 (Process Creation) was monitored to identify command execution activity on the endpoint.
+The following Splunk query was used to identify PowerShell executions.
 
-Several standard applications were executed during testing to generate normal endpoint activity.
+    **index=* source="WinEventLog:Microsoft-Windows-Sysmon/Operational" EventCode=1
+    Image="*powershell.exe"
+    | table _time host User ParentImage CommandLine
+    | sort -_time**
 
-Examples include:
+This query filters process creation events and isolates PowerShell execution activity.
 
-notepad.exe
+**Evidence Collection**
 
-calc.exe
+  **Normal Endpoint Activity**
+    
+To generate baseline activity, several normal applications were opened on the Windows endpoint including:
+- Notepad
+- Calculator
+- PowerShell
+These actions generated Sysmon Event ID 1 events confirming that process creation logging was functioning correctly.
+Example processes observed:
 
-powershell.exe
+      **Process	      Parent Process**
+  
+      notepad.exe	    explorer.exe
+      calc.exe	      explorer.exe
+      powershell.exe	explorer.exe
 
-These events confirmed that Sysmon process creation logging was functioning correctly.
+**Suspicious PowerShell Execution**
 
-Suspicious PowerShell Command Execution
+A PowerShell command was executed using parameters commonly associated with attacker techniques.
 
-A PowerShell command was executed with flags often used in attacker scripts.
+    **_powershell -nop -c "Get-Process"_**
 
-Command observed:
+Explanation of Flags
 
-powershell -nop -c "Get-Process"
+    **Flag	  Description**
+    
+    -nop	    Disables PowerShell profiles
+    -c	      Executes a command
 
-The command includes the -nop flag which disables PowerShell profiles. Attackers frequently use this parameter to avoid loading security monitoring scripts.
+Attackers often disable PowerShell profiles to bypass security scripts that may be loaded during normal PowerShell initialization.
 
-Splunk captured the event with the following details:
+Splunk captured the following information:
 
-Field	Value
-Host	Windows-10
-Parent Process	explorer.exe
-Image	powershell.exe
-CommandLine	powershell -nop -c Get-Process
-Encoded PowerShell Execution
+    **Field	        Value**
+    
+    Host	          Windows-10
+    User	          Windows-10\Ernest
+    Parent Process	explorer.exe
+    Process	        powershell.exe
+    Command Line	  powershell -nop -c Get-Process
 
-An encoded PowerShell command was also executed to simulate attacker behavior.
+**Encoded PowerShell Execution**
 
-Command executed on the endpoint:
+To simulate a common attacker technique, an encoded PowerShell command was executed.
 
-powershell -EncodedCommand Z2V0LXByb2Nlc3M=
+    **_owershell -EncodedCommand Z2V0LXByb2Nlc3M=_**
+    
+Encoded PowerShell commands are frequently used by attackers to obfuscate malicious scripts and bypass detection systems.
 
-Encoded commands are commonly used to obfuscate malicious scripts and evade detection.
+The following Splunk detection query was used.
 
-The following Splunk query was used to detect encoded commands:
+    **index=* source="WinEventLog:Microsoft-Windows-Sysmon/Operational"
+    EventCode=1 Image="*powershell.exe"
+    (CommandLine="*-enc*" OR CommandLine="*EncodedCommand*")
+    | table _time host CommandLine ParentImage**
 
-index=* source="WinEventLog:Microsoft-Windows-Sysmon/Operational"
-EventCode=1 Image="*powershell.exe"
-(CommandLine="*-enc*" OR CommandLine="*EncodedCommand*")
-| table _time host CommandLine ParentImage
+The encoded command execution was successfully detected within Splunk.
 
-The query successfully detected the encoded PowerShell execution.
+**Process Relationship Analysis**
 
-Process Relationship Analysis
+Parent-child process relationships were analyzed to understand how processes were spawned on the system.
 
-To understand the behavior of processes on the system, parent-child relationships were analyzed using the following query:
+The following query was used.
 
-index=* source="WinEventLog:Microsoft-Windows-Sysmon/Operational"
-EventCode=1
-| stats count by ParentImage Image
-| sort -count
+    _index=* source="WinEventLog:Microsoft-Windows-Sysmon/Operational"
+    EventCode=1
+    | stats count by ParentImage Image
+    | sort -count_
 
-This analysis revealed common Windows process relationships including:
+Common process relationships observed included:
 
-explorer.exe → powershell.exe
+    **Parent Process	   Child Process**
+    
+    explorer.exe	       powershell.exe
+    svchost.exe	         rundll32.exe
+    services.exe	       svchost.exe
 
-svchost.exe → rundll32.exe
+While these relationships are typical in Windows environments, security analysts monitor for suspicious chains such as:
 
-services.exe → svchost.exe
+_winword.exe → powershell.exe
+excel.exe → cmd.exe_
 
-These relationships are typically normal within Windows environments.
+These patterns can indicate macro-based malware execution.
 
-However, analysts often monitor unusual chains such as:
+**Timeline of Events**
 
-winword.exe → powershell.exe
-excel.exe → cmd.exe
+    Time	    Event
+    
+    02:40:33	notepad.exe executed
+    02:40:44	calc.exe executed
+    02:40:55	powershell.exe executed
+    02:52:19	PowerShell command executed using -nop flag
+    02:55:56	Encoded PowerShell command detected
 
-because they may indicate macro-based malware execution.
+**Analysis**
 
-Timeline of Events
-Time	Event
-02:40:33	notepad.exe executed
-02:40:44	calc.exe executed
-02:40:55	powershell.exe executed
-02:52:19	suspicious PowerShell command executed
-02:55:56	encoded PowerShell command detected
-Analysis
+The detected PowerShell commands were generated intentionally during lab testing to simulate attacker behavior.
+The investigation demonstrates how PowerShell execution and encoded commands can be identified through endpoint telemetry using Sysmon logs. Security analysts frequently monitor these events because PowerShell is commonly abused during post-exploitation stages of cyber attacks.
 
-The PowerShell activity detected during this investigation was generated intentionally for laboratory testing purposes. The commands executed demonstrated how attackers may use PowerShell to run commands or obfuscate scripts using encoded payloads.
+By monitoring command-line arguments and parent process relationships, analysts can identify suspicious behavior and investigate potential compromise.
 
-The encoded command detected in Splunk represents a typical technique used in real-world attacks. Monitoring PowerShell command-line arguments and encoded command usage is therefore an important detection strategy in Security Operations Centers.
+**Conclusion**
 
-Conclusion
+The investigation determined that the PowerShell activity was part of controlled testing within the lab environment and did not represent malicious activity.
+However, the detection methods used in this investigation successfully identified behaviors commonly associated with attacker techniques. This demonstrates the effectiveness of combining Sysmon endpoint monitoring with Splunk SIEM analysis.
 
-The investigation determined that the PowerShell executions were part of controlled lab activity and do not represent malicious activity. However, the detection methods successfully identified behaviors that are commonly associated with attacker techniques.
+**Skills Demonstrated**
 
-This exercise demonstrates the effectiveness of Sysmon and Splunk in monitoring endpoint activity and detecting suspicious command execution.
-
-Skills Demonstrated
-
-SIEM log analysis using Splunk
-
-Endpoint telemetry monitoring with Sysmon
-
-PowerShell abuse detection
-
-Command-line analysis
-
-Process creation investigation
-
-Parent-child process relationship analysis
+  - SIEM log analysis using Splunk
+  - Endpoint telemetry monitoring using Sysmon
+  - PowerShell threat detection
+  - Command-line investigation
+  - Process creation analysis
+  - Parent-child process relationship analysis
