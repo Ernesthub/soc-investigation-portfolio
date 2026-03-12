@@ -59,7 +59,7 @@ All attack simulations were performed in an isolated lab environment.
 - Analyzed logon type and source IP
 - Determined false positive due to manual password entry error
 
-[View Report #1](Report-01-Brute-Force-Investigation.md)
+[View Report #1]([Report-01-Brute-Force-Investigation.md](https://github.com/Ernesthub/soc-investigation-portfolio/blob/main/reports/Report-01-Brute-Force-Investigation.md))
 
 ---
 
