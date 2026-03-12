@@ -59,7 +59,7 @@ All attack simulations were performed in an isolated lab environment.
 - Analyzed logon type and source IP
 - Determined false positive due to manual password entry error
 
-[View Report #1](./Report-01-Brute-Force-Investigation.md)
+[View Report #1](Report-01-Brute-Force-Investigation.md)
 
 ---
 
@@ -68,7 +68,7 @@ All attack simulations were performed in an isolated lab environment.
 - Analyzed parent-child process relationships
 - Identified potential defense evasion behavior
 
-[View Report #2](./Report-02-Encoded-PowerShell.md)
+[View Report #2](Report-02-Suspicious-PowerShell-Execution.md)
 
 ---
 
