@@ -46,7 +46,8 @@ This event captures outbound network connections, including:
 
 A PowerShell command was executed to simulate outbound communication:
 
-```powershell
+
+
 powershell -Command "Test-NetConnection 192.168.192.129 -Port 4444"
 
 This was used to simulate communication with a potential attacker-controlled system.
@@ -171,3 +172,8 @@ Sysmon Event ID 3 analysis
 Detection of suspicious outbound traffic
 Threat hunting and investigation
 SOC-style analysis and reporting
+
+```powershell
+powershell -Command "Test-NetConnection 192.168.192.129 -Port 4444"
+
+
