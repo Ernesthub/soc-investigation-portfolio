@@ -11,7 +11,7 @@
 
 ---
 
-## 🖥 Lab Setup Summary
+## Lab Setup Summary
 
 - Environment: Windows 10 VM (VMware)
 - Log Source: Windows Security Logs
@@ -21,7 +21,7 @@
 
 ---
 
-## 🛠 Practical Execution (Step-by-Step)
+## Practical Execution (Step-by-Step)
 
 1. Created a local test account named `labuser`.
 2. Attempted 10–15 failed login attempts using an incorrect password, spacing each attempt 2–3 seconds apart.
@@ -41,7 +41,7 @@
 
 ---
 
-## 📊 Evidence Collected
+## Evidence Collected
 
 ### Failed Logon Events (Event ID 4625)
 
@@ -60,7 +60,7 @@
 
 ---
 
-## ⏱ Timeline Reconstruction
+## Timeline Reconstruction
 
 | Time       | Activity |
 |------------|----------|
@@ -104,7 +104,7 @@ The pattern indicates manual password entry error rather than automated brute fo
 
 ---
 
-## 🛡 Containment & Recommendations
+## Containment & Recommendations
 
 No containment required in this case.
 
