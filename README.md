@@ -68,7 +68,7 @@ All attack simulations were performed in an isolated lab environment.
 - Analyzed parent-child process relationships
 - Identified potential defense evasion behavior
 
-[View Report #2](Report-02-Suspicious-PowerShell-Execution.md)
+[View Report #2](reports/Report-02-Suspicious-PowerShell-Execution.md)
 
 ---
 
