@@ -86,7 +86,7 @@ All attack simulations were performed in an isolated lab environment.
 - Identified suspicious `AttachUserPolicy` activity
 - Reconstructed escalation timeline
 
-[View Report #4](./Report-04-Cloud-IAM-Escalation.md)
+[View Report #4](reports/Report-04-Persistence-Privilege-Escalation.md)
 
 ---
 
