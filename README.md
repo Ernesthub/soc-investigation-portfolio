@@ -77,7 +77,7 @@ All attack simulations were performed in an isolated lab environment.
 - Correlated process responsible
 - Evaluated potential malware execution risk
 
-[View Report #3](./Report-03-Suspicious-Download.md)
+[View Report #3](reports/Report-03-Network-Connections-C2-Detection.md)
 
 ---
 
